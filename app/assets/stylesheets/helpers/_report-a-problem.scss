@@ -2,10 +2,24 @@
   display: none;
 }
 
-.report-a-problem-container{
+.report-a-problem-container,
+.report-a-problem-toggle-wrapper {
   @extend %site-width-container;
   clear: both;
 
+  #wrapper & {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  // The homepage removes margins from wrapper
+  // Be specific to override margin resets
+  .homepage #wrapper & {
+    @extend %site-width-container;
+  }
+}
+
+.report-a-problem-container {
   .report-a-problem-inner {
     margin-bottom: 60px;
     .report-a-problem-content {
@@ -83,9 +97,4 @@
   @include media-down(mobile) {
     margin-top:2em;
   }
-}
-
-.report-a-problem-toggle-wrapper {
-  @extend %site-width-container;
-  clear:both;
 }
