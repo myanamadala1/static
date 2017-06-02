@@ -263,13 +263,24 @@
     if ($searchResults) {
       var ecommerceData = buildEcommerceData($searchResults);
       add_impressions(ecommerceData);
+      trackSearchClicks($searchResults);
     }
   }
 
-  function ecommerceResultClick(title) {
+  function trackSearchClicks($searchResults) {
+    return $searchResults.children('li').map(function(index, result) {
+      var $resultLink = $(result).find('h3 a');
+      $resultLink.click(function (event) {
+        ecommerceResultClick($resultLink, index)
+      });
+    });
+  }
+
+  function ecommerceResultClick($resultLink, index) {
     ga('ec:addProduct', {
-      'id': title,
-      'name': title
+      'id': $resultLink.attr('href'),
+      'name': $resultLink.text(),
+      'position': index + 1
     });
     ga('ec:setAction', 'click', {list: 'Search GOVUK_SITE_SEARCH_PROTOTYPE'});
     ga('send', 'event', 'UX', 'click', 'Results');
