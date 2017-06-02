@@ -1,7 +1,6 @@
 (function () {
   "use strict";
   window.GOVUK = window.GOVUK || {};
-
   var StaticAnalytics = function (config) {
 
     // Create universal tracker
@@ -29,6 +28,7 @@
   };
 
   StaticAnalytics.prototype.trackPageview = function (path, title, options) {
+    ecommerceSearchResults();
     var trackingOptions = this.getAndExtendDefaultTrackingOptions(options);
     this.analytics.trackPageview(path, title, trackingOptions);
   };
@@ -228,6 +228,51 @@
     } catch (e) {
       return {};
     }
+  }
+
+  function buildEcommerceData($searchResults) {
+    return $searchResults.children('li').map(function(index, result) {
+      var resultLink = $(result).find('h3 a');
+      return {
+        url: resultLink.attr('href'),
+        title: resultLink.text(),
+        position: index + 1
+      }
+    });
+  }
+
+  function add_impressions(ecommerceData) {
+    if (ecommerceData.length > 0) {
+      window.ga('require', 'ec');
+    }
+
+    for (var i = 0; i < ecommerceData.length; i++) {
+      var searchResult = ecommerceData[i];
+      ga('ec:addImpression', {
+        id: searchResult.url,
+        name: searchResult.title,
+        position: i + 1,
+        list: 'GOVUK_SITE_SEARCH_PROTOTYPE'
+      });
+    }
+  }
+
+  function ecommerceSearchResults() {
+    var $searchResults = $('#results .results-list');
+
+    if ($searchResults) {
+      var ecommerceData = buildEcommerceData($searchResults);
+      add_impressions(ecommerceData);
+    }
+  }
+
+  function ecommerceResultClick(title) {
+    ga('ec:addProduct', {
+      'id': title,
+      'name': title
+    });
+    ga('ec:setAction', 'click', {list: 'Search GOVUK_SITE_SEARCH_PROTOTYPE'});
+    ga('send', 'event', 'UX', 'click', 'Results');
   }
 
   GOVUK.StaticAnalytics = StaticAnalytics;
